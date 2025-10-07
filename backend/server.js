@@ -45,12 +45,14 @@ mongoose.connect(process.env.MONGODB_URI, {
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const shopAppsRoutes = require('./routes/shop-apps');
-const customerRoutes = require('./routes/customers'); // NEW
+const customerRoutes = require('./routes/customers');
+const appStoreRoutes = require('./routes/app-store'); // NEW
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/shop-apps', shopAppsRoutes);
-app.use('/api/customers', customerRoutes); // NEW
+app.use('/api/customers', customerRoutes);
+app.use('/api/app-store', appStoreRoutes); // NEW
 
 // Sample products endpoint
 app.get('/api/products', (req, res) => {
