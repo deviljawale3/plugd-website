@@ -2,13 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String,
     required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 30
+    trim: true
   },
   email: {
     type: String,
@@ -19,33 +16,23 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6
+    required: function() {
+      return !this.provider; // Password not required for OAuth users
+    }
   },
   role: {
     type: String,
     enum: ['customer', 'admin', 'super_admin'],
     default: 'customer'
   },
-  profile: {
-    firstName: String,
-    lastName: String,
-    phone: String,
-    address: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String
-    }
+  image: {
+    type: String,
+    default: null
   },
-  preferences: {
-    newsletter: { type: Boolean, default: false },
-    notifications: { type: Boolean, default: true }
-  },
-  lastLogin: {
-    type: Date,
-    default: Date.now
+  provider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local'
   },
   isActive: {
     type: Boolean,
@@ -57,10 +44,12 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) {
+    return next();
+  }
   
   try {
-    const salt = await bcrypt.genSalt(12);
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
@@ -70,14 +59,10 @@ userSchema.pre('save', async function(next) {
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-// Remove password from JSON output
-userSchema.methods.toJSON = function() {
-  const user = this.toObject();
-  delete user.password;
-  return user;
+  if (!this.password) {
+    return false; // OAuth users don't have passwords
+  }
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);
