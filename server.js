@@ -6,33 +6,47 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Middleware
+// CORS Configuration - Fixed for Vercel
 app.use(cors({
-  origin: ['https://plugd.page.gd', 'http://localhost:3000'],
-  credentials: true
+  origin: ['https://plugd.page.gd', 'http://localhost:3000', 'https://plugd-website.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    if (process.env.MONGODB_URI) {
-      await mongoose.connect(process.env.MONGODB_URI);
-      console.log('✅ MongoDB Connected');
-    }
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ MongoDB connected successfully');
   } catch (error) {
-    console.log('MongoDB connection error:', error);
+    console.error('MongoDB connection error:', error);
   }
 };
 
+// Connect to database
 connectDB();
+
+// Sample Product Schema
+const productSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  price: Number,
+  image: String,
+  category: String,
+  inStock: { type: Boolean, default: true }
+}, { timestamps: true });
+
+const Product = mongoose.model('Product', productSchema);
 
 // Routes
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Plugd API is running!', 
-    status: 'success',
-    timestamp: new Date().toISOString()
+    message: "Plugd API is running!", 
+    status: "success",
+    timestamp: new Date().toISOString() 
   });
 });
 
@@ -44,18 +58,62 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/products', (req, res) => {
-  res.json({ 
-    products: [
-      { id: 1, name: 'iPhone 15 Pro', price: 999, category: 'Smartphones', image: 'https://via.placeholder.com/300' },
-      { id: 2, name: 'MacBook Pro M3', price: 1999, category: 'Laptops', image: 'https://via.placeholder.com/300' },
-      { id: 3, name: 'AirPods Pro', price: 249, category: 'Audio', image: 'https://via.placeholder.com/300' },
-      { id: 4, name: 'iPad Air', price: 599, category: 'Tablets', image: 'https://via.placeholder.com/300' }
-    ],
-    total: 4
-  });
+// Get all products
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    
+    // If no products exist, return sample products
+    if (products.length === 0) {
+      const sampleProducts = [
+        {
+          _id: '1',
+          name: 'Premium Headphones',
+          description: 'High-quality wireless headphones with noise cancellation',
+          price: 199.99,
+          image: 'https://via.placeholder.com/300x200/4facfe/ffffff?text=Premium+Headphones',
+          category: 'Electronics'
+        },
+        {
+          _id: '2',
+          name: 'Smart Watch',
+          description: 'Advanced fitness tracking and smart notifications',
+          price: 299.99,
+          image: 'https://via.placeholder.com/300x200/ff6b6b/ffffff?text=Smart+Watch',
+          category: 'Electronics'
+        },
+        {
+          _id: '3',
+          name: 'Gaming Mouse',
+          description: 'Professional gaming mouse with RGB lighting',
+          price: 79.99,
+          image: 'https://via.placeholder.com/300x200/51cf66/ffffff?text=Gaming+Mouse',
+          category: 'Gaming'
+        }
+      ];
+      return res.json(sampleProducts);
+    }
+    
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Error fetching products', error: error.message });
+  }
 });
 
+// Add a new product
+app.post('/api/products', async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating product', error: error.message });
+  }
+});
+
+// Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Plugd API running on port ${PORT}`);
+  console.log(`🌐 CORS enabled for: plugd.page.gd, localhost:3000, plugd-website.vercel.app`);
 });
