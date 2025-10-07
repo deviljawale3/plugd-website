@@ -1,0 +1,20 @@
+{
+  "name": "plugd",
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://plugd-api-production.up.railway.app",
+    "NEXT_PUBLIC_DOMAIN": "https://plugd.page.gd"
+  }
+}
