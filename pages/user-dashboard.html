@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - PLUGD Marketplace</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #00ff88, #00cc6a); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .tab-active { border-bottom: 3px solid #00ff88; color: #00ff88; }
+        .btn-primary { background: linear-gradient(135deg, #00ff88, #00cc6a); }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-processing { background: #dbeafe; color: #2563eb; }
+        .status-shipped { background: #d1fae5; color: #059669; }
+        .status-delivered { background: #dcfce7; color: #16a34a; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
+        .sidebar-link { transition: all 0.3s ease; }
+        .sidebar-link:hover { background: #f3f4f6; padding-left: 1.5rem; }
+        .sidebar-link.active { background: #00ff88; color: white; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">
+                        PLUGD
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="/products" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-shopping-bag mr-2"></i>Shop
+                    </a>
+                    <div class="relative">
+                        <button id="profileBtn" class="flex items-center text-gray-600 hover:text-gray-900">
+                            <img id="userAvatar" src="/api/placeholder/32/32" alt="Profile" class="w-8 h-8 rounded-full mr-2">
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down ml-2"></i>
+                        </button>
+                        <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>My Profile
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <hr class="my-1">
+                            <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-center mb-6">
+                        <img id="sidebarAvatar" src="/api/placeholder/80/80" alt="Profile" class="w-20 h-20 rounded-full mx-auto mb-3">
+                        <h3 id="sidebarName" class="font-semibold text-gray-900">Loading...</h3>
+                        <p id="sidebarEmail" class="text-sm text-gray-600"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddb1b2bcb9b4b3ba9db8b0bcb4b1f3beb2b0">[email&#160;protected]</a></p>
+                    </div>
+                    
+                    <nav class="space-y-2">
+                        <a href="#" data-tab="dashboard" class="sidebar-link active flex items-center px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-chart-pie mr-3"></i>Dashboard
+                        </a>
+                        <a href="#" data-tab="orders" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-shopping-bag mr-3"></i>My Orders
+                        </a>
+                        <a href="#" data-tab="wishlist" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-heart mr-3"></i>Wishlist
+                        </a>
+                        <a href="#" data-tab="addresses" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-map-marker-alt mr-3"></i>Addresses
+                        </a>
+                        <a href="#" data-tab="payments" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-credit-card mr-3"></i>Payment Methods
+                        </a>
+                        <a href="#" data-tab="profile" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-user-edit mr-3"></i>Edit Profile
+                        </a>
+                        <a href="#" data-tab="security" class="sidebar-link flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700">
+                            <i class="fas fa-shield-alt mr-3"></i>Security
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:w-3/4">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Welcome back!</h2>
+                        
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="card-hover bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-blue-100">Total Orders</p>
+                                        <p id="totalOrders" class="text-2xl font-bold">0</p>
+                                    </div>
+                                    <i class="fas fa-shopping-bag text-3xl text-blue-200"></i>
+                                </div>
+                            </div>
+                            <div class="card-hover bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-green-100">Total Spent</p>
+                                        <p id="totalSpent" class="text-2xl font-bold">₹0</p>
+                                    </div>
+                                    <i class="fas fa-rupee-sign text-3xl text-green-200"></i>
+                                </div>
+                            </div>
+                            <div class="card-hover bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-purple-100">Wishlist Items</p>
+                                        <p id="wishlistCount" class="text-2xl font-bold">0</p>
+                                    </div>
+                                    <i class="fas fa-heart text-3xl text-purple-200"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Orders -->
+                        <div class="mb-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
+                                <a href="#" data-tab="orders" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
+                            </div>
+                            <div id="recentOrders" class="space-y-4">
+                                <!-- Orders will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div id="orders-tab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Orders</h2>
+                        
+                        <!-- Order Filters -->
+                        <div class="flex flex-wrap gap-4 mb-6">
+                            <select id="orderStatus" class="border border-gray-300 rounded-md px-3 py-2">
+                                <option value="">All Orders</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                            <input type="date" id="orderDate" class="border border-gray-300 rounded-md px-3 py-2">
+                            <button id="filterOrders" class="btn-primary text-white px-4 py-2 rounded-md hover:opacity-90">
+                                Filter
+                            </button>
+                        </div>
+                        
+                        <div id="ordersList" class="space-y-4">
+                            <!-- Orders will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wishlist Tab -->
+                <div id="wishlist-tab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Wishlist</h2>
+                        <div id="wishlistItems" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Wishlist items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+                        
+                        <form id="profileForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                    <input type="text" id="firstName" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                    <input type="text" id="lastName" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" id="email" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100" disabled>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                    <input type="tel" id="phone" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                    <select id="gender" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                <textarea id="bio" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Tell us about yourself..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-md hover:opacity-90">
+                                    Update Profile
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="security-tab" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Security Settings</h2>
+                        
+                        <!-- Change Password -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+                            <form id="passwordForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                    <input type="password" id="currentPassword" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                    <input type="password" id="newPassword" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                                    <input type="password" id="confirmPassword" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                </div>
+                                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-md hover:opacity-90">
+                                    Change Password
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Login Activity -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Login Activity</h3>
+                            <div id="loginActivity" class="space-y-3">
+                                <!-- Login activity will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading" class="hidden flex justify-center items-center h-64">
+                    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="flex-shrink-0 mr-3"></div>
+                <div>
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900"></p>
+                </div>
+                <button id="toastClose" class="ml-auto flex-shrink-0">
+                    <i class="fas fa-times text-gray-400 hover:text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/frontend-integration.js"></script>
+    <script>
+        // User Dashboard JavaScript
+        class UserDashboard {
+            constructor() {
+                this.api = window.APIClient;
+                this.currentTab = 'dashboard';
+                this.init();
+            }
+            
+            async init() {
+                this.bindEvents();
+                await this.loadUserProfile();
+                await this.loadDashboardData();
+            }
+            
+            bindEvents() {
+                // Tab navigation
+                document.querySelectorAll('[data-tab]').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+                
+                // Profile form
+                document.getElementById('profileForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updateProfile();
+                });
+                
+                // Password form
+                document.getElementById('passwordForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.changePassword();
+                });
+                
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.logout();
+                });
+                
+                // Profile dropdown
+                document.getElementById('profileBtn').addEventListener('click', () => {
+                    const dropdown = document.getElementById('profileDropdown');
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#profileBtn')) {
+                        document.getElementById('profileDropdown').classList.add('hidden');
+                    }
+                });
+            }
+            
+            async loadUserProfile() {
+                try {
+                    const response = await this.api.getProfile();
+                    const user = response.data.user;
+                    
+                    // Update UI with user data
+                    document.getElementById('userName').textContent = `${user.firstName} ${user.lastName}`;
+                    document.getElementById('sidebarName').textContent = `${user.firstName} ${user.lastName}`;
+                    document.getElementById('sidebarEmail').textContent = user.email;
+                    
+                    // Update profile form
+                    document.getElementById('firstName').value = user.firstName || '';
+                    document.getElementById('lastName').value = user.lastName || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('phone').value = user.phone || '';
+                    document.getElementById('dateOfBirth').value = user.dateOfBirth ? user.dateOfBirth.split('T')[0] : '';
+                    document.getElementById('gender').value = user.gender || '';
+                    document.getElementById('bio').value = user.bio || '';
+                    
+                } catch (error) {
+                    console.error('Failed to load profile:', error);
+                    this.showToast('Failed to load profile', 'error');
+                }
+            }
+            
+            async loadDashboardData() {
+                try {
+                    // Load orders
+                    const ordersResponse = await this.api.getOrders();
+                    const orders = ordersResponse.data.orders || [];
+                    
+                    // Update stats
+                    document.getElementById('totalOrders').textContent = orders.length;
+                    
+                    const totalSpent = orders.reduce((sum, order) => {
+                        return order.status !== 'cancelled' ? sum + order.totalAmount : sum;
+                    }, 0);
+                    document.getElementById('totalSpent').textContent = `₹${totalSpent.toLocaleString()}`;
+                    
+                    // Load wishlist count
+                    const profileResponse = await this.api.getProfile();
+                    const wishlistCount = profileResponse.data.user.wishlist?.length || 0;
+                    document.getElementById('wishlistCount').textContent = wishlistCount;
+                    
+                    // Show recent orders
+                    this.displayRecentOrders(orders.slice(0, 3));
+                    
+                } catch (error) {
+                    console.error('Failed to load dashboard data:', error);
+                }
+            }
+            
+            displayRecentOrders(orders) {
+                const container = document.getElementById('recentOrders');
+                
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-shopping-bag text-4xl mb-4"></i>
+                            <p>No orders yet. Start shopping!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = orders.map(order => `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-gray-900">#${order.orderNumber}</h4>
+                                <p class="text-sm text-gray-600">${new Date(order.createdAt).toLocaleDateString()}</p>
+                                <p class="text-sm text-gray-600">${order.items.length} item(s)</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-gray-900">₹${order.totalAmount.toLocaleString()}</p>
+                                <span class="status-badge status-${order.status}">${order.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            switchTab(tabName) {
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.add('hidden');
+                });
+                
+                // Show selected tab
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+                
+                // Update sidebar active state
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                
+                this.currentTab = tabName;
+                
+                // Load tab-specific data
+                this.loadTabData(tabName);
+            }
+            
+            async loadTabData(tabName) {
+                switch (tabName) {
+                    case 'orders':
+                        await this.loadOrders();
+                        break;
+                    case 'wishlist':
+                        await this.loadWishlist();
+                        break;
+                }
+            }
+            
+            async loadOrders() {
+                try {
+                    const response = await this.api.getOrders();
+                    const orders = response.data.orders || [];
+                    
+                    const container = document.getElementById('ordersList');
+                    
+                    if (orders.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-12 text-gray-500">
+                                <i class="fas fa-shopping-bag text-6xl mb-4"></i>
+                                <h3 class="text-xl font-semibold mb-2">No orders found</h3>
+                                <p>Start shopping to see your orders here!</p>
+                                <a href="/products" class="btn-primary text-white px-6 py-2 rounded-md hover:opacity-90 inline-block mt-4">
+                                    Start Shopping
+                                </a>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    container.innerHTML = orders.map(order => this.createOrderCard(order)).join('');
+                    
+                } catch (error) {
+                    console.error('Failed to load orders:', error);
+                    this.showToast('Failed to load orders', 'error');
+                }
+            }
+            
+            createOrderCard(order) {
+                return `
+                    <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">#${order.orderNumber}</h3>
+                                <p class="text-sm text-gray-600">${new Date(order.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <span class="status-badge status-${order.status}">${order.status}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Items</p>
+                                <p class="font-semibold">${order.items.length} item(s)</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Total Amount</p>
+                                <p class="font-semibold text-lg">₹${order.totalAmount.toLocaleString()}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Payment Method</p>
+                                <p class="font-semibold">${order.paymentMethod}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View Details
+                            </button>
+                            ${order.status === 'shipped' ? '<button class="text-green-600 hover:text-green-800 text-sm font-medium">Track Order</button>' : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            async updateProfile() {
+                try {
+                    const formData = {
+                        firstName: document.getElementById('firstName').value,
+                        lastName: document.getElementById('lastName').value,
+                        phone: document.getElementById('phone').value,
+                        dateOfBirth: document.getElementById('dateOfBirth').value,
+                        gender: document.getElementById('gender').value,
+                        bio: document.getElementById('bio').value
+                    };
+                    
+                    await this.api.updateProfile(formData);
+                    this.showToast('Profile updated successfully', 'success');
+                    await this.loadUserProfile();
+                    
+                } catch (error) {
+                    console.error('Failed to update profile:', error);
+                    this.showToast('Failed to update profile', 'error');
+                }
+            }
+            
+            async changePassword() {
+                try {
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        this.showToast('Passwords do not match', 'error');
+                        return;
+                    }
+                    
+                    await this.api.client.put('/auth/change-password', {
+                        currentPassword,
+                        newPassword
+                    });
+                    
+                    this.showToast('Password changed successfully', 'success');
+                    
+                    // Clear form
+                    document.getElementById('passwordForm').reset();
+                    
+                } catch (error) {
+                    console.error('Failed to change password:', error);
+                    this.showToast('Failed to change password', 'error');
+                }
+            }
+            
+            async logout() {
+                try {
+                    await this.api.logout();
+                    window.location.href = '/';
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                    // Force logout even if API call fails
+                    localStorage.removeItem('token');
+                    window.location.href = '/';
+                }
+            }
+            
+            showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toastMessage');
+                const toastIcon = document.getElementById('toastIcon');
+                
+                toastMessage.textContent = message;
+                
+                // Set icon based on type
+                const icons = {
+                    success: '<i class="fas fa-check-circle text-green-500"></i>',
+                    error: '<i class="fas fa-exclamation-circle text-red-500"></i>',
+                    info: '<i class="fas fa-info-circle text-blue-500"></i>'
+                };
+                
+                toastIcon.innerHTML = icons[type] || icons.info;
+                
+                toast.classList.remove('hidden');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 5000);
+                
+                // Close button
+                document.getElementById('toastClose').onclick = () => {
+                    toast.classList.add('hidden');
+                };
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new UserDashboard();
+        });
+    </script>
+</body>
+</html>
