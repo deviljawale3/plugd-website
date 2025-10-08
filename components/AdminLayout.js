@@ -3,155 +3,94 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default function AdminLayout({ children }) {
-  const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    const userData = localStorage.getItem('admin_user');
-
-    if (!token || !userData) {
+    const token = localStorage.getItem('adminToken');
+    const adminData = localStorage.getItem('adminData');
+    
+    if (!token || !adminData) {
       router.push('/admin/login');
       return;
     }
-
-    setUser(JSON.parse(userData));
-  }, []);
+    
+    setAdmin(JSON.parse(adminData));
+  }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_user');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
     router.push('/admin/login');
   };
 
-  if (!user) {
-    return <div style={styles.loading}>Loading...</div>;
+  if (!admin) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div style={styles.layout}>
-      <aside style={styles.sidebar}>
-        <div style={styles.logo}>
-          <h2>🔌 PLUGD Admin</h2>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-md">
+        <div className="p-4">
+          <h2 className="text-xl font-bold text-gray-800">Plugd Admin</h2>
+          <p className="text-sm text-gray-600">{admin.name}</p>
         </div>
         
-        <nav style={styles.nav}>
-          <Link href="/admin/dashboard" style={styles.navLink}>
+        <nav className="mt-4">
+          <Link 
+            href="/admin/dashboard"
+            className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+              router.pathname === '/admin/dashboard' ? 'bg-gray-100 border-r-4 border-blue-500' : ''
+            }`}
+          >
             📊 Dashboard
           </Link>
-          <Link href="/admin/products" style={styles.navLink}>
+          <Link 
+            href="/admin/products"
+            className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+              router.pathname === '/admin/products' ? 'bg-gray-100 border-r-4 border-blue-500' : ''
+            }`}
+          >
             📦 Products
           </Link>
-          <Link href="/admin/users" style={styles.navLink}>
+          <Link 
+            href="/admin/users"
+            className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+              router.pathname === '/admin/users' ? 'bg-gray-100 border-r-4 border-blue-500' : ''
+            }`}
+          >
             👥 Users
           </Link>
-          <Link href="/admin/shop-apps" style={styles.navLink}>
-            🛍️ Shop Apps
+          <Link 
+            href="/admin/app-store"
+            className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+              router.pathname === '/admin/app-store' ? 'bg-gray-100 border-r-4 border-blue-500' : ''
+            }`}
+          >
+            🏪 App Store
           </Link>
-        </nav>
-
-        <div style={styles.userInfo}>
-          <p style={styles.userName}>{user.username}</p>
-          <p style={styles.userRole}>{user.role}</p>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            Logout
+          <Link 
+            href="/admin/shop-apps"
+            className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+              router.pathname === '/admin/shop-apps' ? 'bg-gray-100 border-r-4 border-blue-500' : ''
+            }`}
+          >
+            🛍️ Import Products
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            🚪 Logout
           </button>
-        </div>
-      </aside>
+        </nav>
+      </div>
 
-      <main style={styles.main}>
-        <header style={styles.header}>
-          <Link href="/" style={styles.viewSite}>
-            🌐 View Site
-          </Link>
-        </header>
-        
-        <div style={styles.content}>
-          {children}
-        </div>
-      </main>
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        {children}
+      </div>
     </div>
   );
 }
-
-const styles = {
-  layout: {
-    display: 'flex',
-    minHeight: '100vh',
-    background: '#f3f4f6'
-  },
-  loading: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    fontSize: '18px'
-  },
-  sidebar: {
-    width: '250px',
-    background: '#1f2937',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  logo: {
-    padding: '20px',
-    borderBottom: '1px solid #374151',
-    textAlign: 'center'
-  },
-  nav: {
-    flex: 1,
-    padding: '20px 0'
-  },
-  navLink: {
-    display: 'block',
-    padding: '12px 20px',
-    color: '#d1d5db',
-    textDecoration: 'none',
-    transition: 'background-color 0.2s'
-  },
-  userInfo: {
-    padding: '20px',
-    borderTop: '1px solid #374151'
-  },
-  userName: {
-    margin: '0 0 5px 0',
-    fontWeight: 'bold'
-  },
-  userRole: {
-    margin: '0 0 15px 0',
-    fontSize: '14px',
-    color: '#9ca3af'
-  },
-  logoutBtn: {
-    width: '100%',
-    padding: '8px',
-    background: '#dc2626',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer'
-  },
-  main: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  header: {
-    background: 'white',
-    padding: '15px 20px',
-    borderBottom: '1px solid #e5e7eb',
-    display: 'flex',
-    justifyContent: 'flex-end'
-  },
-  viewSite: {
-    color: '#4f46e5',
-    textDecoration: 'none',
-    fontWeight: '500'
-  },
-  content: {
-    flex: 1,
-    padding: '0',
-    overflow: 'auto'
-  }
-};
