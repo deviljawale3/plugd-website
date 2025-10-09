@@ -3,13 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "start": "cd frontend && npm run start",
-    "lint": "cd frontend && npm run lint",
-    "backend:dev": "cd backend && npm run dev",
-    "backend:start": "cd backend && npm run start",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "dev": "cd apps/frontend && npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "start": "node server.js",
+    "backend:start": "cd apps/backend && npm start",
+    "lint": "cd apps/frontend && npm run lint",
+    "backend:dev": "cd apps/backend && npm run dev",
+    "backend:start": "cd apps/backend && npm run start",
+    "admin:dev": "cd apps/admin && npm start",
+    "install:all": "npm install && cd apps/frontend && npm install && cd ../backend && npm install",
+    "clean": "rm -rf node_modules apps/*/node_modules",
+    "test": "npm run test --workspaces",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:win": "scripts\\deploy.bat",
+    "setup:env": "cp apps/frontend/.env.example apps/frontend/.env.local && cp apps/backend/.env.example apps/backend/.env",
+    "check:health": "curl https://api.plugd.page.gd/api/health && curl https://plugd.page.gd"
   },
   "dependencies": {
     "next": "14.0.0",
@@ -20,7 +28,8 @@
     "node": ">=18.0.0"
   },
   "workspaces": [
-    "frontend",
-    "backend"
+    "apps/frontend",
+    "apps/backend",
+    "packages/*"
   ]
 }

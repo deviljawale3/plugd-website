@@ -1,0 +1,36 @@
+# Environment Variables for Render Deployment
+# Add these in your Render dashboard under Environment Variables
+
+# Required - Server Configuration
+NODE_ENV=production
+PORT=10000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/plugd-production
+
+# Required - Security
+JWT_SECRET=your-super-secure-jwt-secret-here-minimum-32-characters
+FRONTEND_URL=https://plugd.page.gd
+CORS_ORIGIN=https://plugd.page.gd
+
+# Optional - Payment Gateways (add only if you have the credentials)
+# If not provided, the service will gracefully disable these payment methods
+
+# Razorpay (for Indian market)
+RAZORPAY_KEY_ID=rzp_live_your_key_here
+RAZORPAY_KEY_SECRET=your_razorpay_secret_here
+
+# Stripe (for international payments)
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_here
+
+# PayPal (for PayPal payments)
+PAYPAL_CLIENT_ID=your_paypal_client_id_here
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
+
+# Optional - Email Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+EMAIL_FROM=noreply@plugd.page.gd
+
+# Note: The application will work with just the required variables.
+# Payment gateways will be automatically disabled if credentials are not provided.

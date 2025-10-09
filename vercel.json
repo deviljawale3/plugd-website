@@ -1,7 +1,34 @@
 {
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/.next",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "crons": []
+  "version": 2,
+  "name": "plugd-frontend",
+  "builds": [
+    {
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/next",
+      "config": {
+        "distDir": ".next"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/apps/frontend/src/pages/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/frontend/$1"
+    }
+  ],
+  "functions": {
+    "apps/frontend/src/pages/api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_DOMAIN": "plugd.page.gd",
+    "NEXT_PUBLIC_API_URL": "https://api.plugd.page.gd"
+  },
+  "regions": ["iad1"],
+  "framework": "nextjs"
 }

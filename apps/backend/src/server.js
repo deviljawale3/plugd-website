@@ -246,32 +246,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
-// Simple server entry point for Render deployment
-// This file exists in the root to satisfy Render's default expectations
-// but redirects to the actual server in apps/backend/src/
-
-const path = require('path');
-
-// Check if we're in the correct directory structure
-const backendPath = path.join(__dirname, 'apps', 'backend', 'src', 'server.js');
-
-try {
-  // Try to require the actual server file
-  require(backendPath);
-} catch (error) {
-  console.error('Failed to start server from apps/backend/src/server.js:', error.message);
-  
-  // Fallback: try to find server.js in current directory
-  try {
-    require('./server-complete.js');
-  } catch (fallbackError) {
-    console.error('Fallback server also failed:', fallbackError.message);
-    console.log('Available files in current directory:');
-    const fs = require('fs');
-    fs.readdirSync(__dirname).forEach(file => {
-      console.log(' -', file);
-    });
-    process.exit(1);
-  }
-}
